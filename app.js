@@ -1,30 +1,41 @@
 
 
-const port = 3000
+const port = 3001
 
 var createError = require('http-errors');
+var cookieSession = require('cookie-session');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var config = require('./config');
+var mongoose = require('mongoose');
+mongoose.connect(config.db, { useNewUrlParser: true });
 
 var indexRouter = require('./routes/index');
 var newsRouter = require('./routes/news');
 var adminRouter = require('./routes/admin');
 var quizRouter = require('./routes/quiz');
 
+//mongodb+srv://admin:OyABg9tM8toJARp2@cluster0.amufdjr.mongodb.net/?retryWrites=true&w=majority
+
 var app = express();
 app.listen(port, () => console.log(`Dolphin app listening on port ${port}!`))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieSession({
+  name: 'session',
+  keys: config.keySession,
+  maxAge: config.maxAgeSession,
+}))
 
 app.use(function (req, res, next) {
   res.locals.path = req.path;
